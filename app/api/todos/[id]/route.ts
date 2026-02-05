@@ -1,15 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';  // Add NextRequest
 import clientPromise from '@/lib/mongodb';
 import { Todo, TodoDto } from '@/types/todo';
 import { ObjectId } from 'mongodb';
 
 export async function GET(
-    request: Request,
-    { params }: { params: { id: string } }
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }  // Updated type
 ) {
     try {
+        const { id } = await params;  // Await the promise
+
         // Validate ObjectId format first
-        if (!ObjectId.isValid(params.id)) {
+        if (!ObjectId.isValid(id)) {
             return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 });
         }
 
@@ -17,16 +19,16 @@ export async function GET(
         const db = client.db('myDatabase');
 
         const todo = await db.collection<Todo>('todos').findOne({
-            _id: new ObjectId(params.id),  // Now type-compatible
+            _id: new ObjectId(id),
         });
 
         if (!todo) {
             return NextResponse.json({ error: 'Not found' }, { status: 404 });
         }
 
-        // Transform for API response (convert ObjectId to string)
+        // Transform for API response
         const todoDto: TodoDto = {
-            _id: todo._id.toHexString(),  // Convert to JSON-safe string
+            _id: todo._id.toHexString(),
             title: todo.title,
             description: todo.description,
             completed: todo.completed,
