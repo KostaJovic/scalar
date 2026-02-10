@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.20",
     "@types/mongoose": "^5.11.96",
     "mongoose": "^9.1.5",
     "next": "16.1.6",

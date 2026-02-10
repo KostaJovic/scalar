@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb'
-import { Recipe } from '@/types/recipe'; // Adjust path to your Recipe type location
+import { Recipe } from '@/types/recipe';
 
 export async function GET() {
     try {
         const client = await clientPromise;
-        const db = client.db('myDatabase');  // Your DB name
+        const db = client.db('scaler');
         const recipes = await db
             .collection<Recipe>('recipes')
             .find({})
@@ -41,9 +41,8 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
         const client = await clientPromise;
-        const db = client.db('myDatabase');
+        const db = client.db('scaler');
 
-        // Create MongoDB document (no id needed - MongoDB generates _id)
         const result = await db.collection('recipes').insertOne({
             title: body.title,
             description: body.description,
@@ -64,7 +63,6 @@ export async function POST(request: Request) {
 
         const recipe = await db.collection('recipes').findOne({ _id: result.insertedId });
 
-        // Transform for frontend (id instead of _id)
         const recipeDto = recipe ? {
             id: recipe._id.toHexString(),
             title: recipe.title,
